@@ -32,7 +32,7 @@ mountingScrewCountersinkDepth = 3;
 
 /* [Box: Advanced Parameters] */
 // Height of a single drawer (mm)
-uHeight = 19;
+uHeight = 20;
 // Thickness of the Box's frame (mm)
 boxFrameThickness = 5;
 // Number of rear braces
@@ -89,7 +89,7 @@ boxBraceSpacing = boxInnerHeight / (boxBraceCount + 1);
 mountingHoleDiameter = mountingBoltShaftDiameter + mountingBoltShaftDiameterTolerance;
 mountingHoleRadius = mountingHoleDiameter / 2;
 drawerOuterWidth = boxInnerWidth - 1;
-drawerOuterHeight = drawerUHeight * uHeight;
+drawerOuterHeight = (drawerUHeight * uHeight) - 1;
 drawerOuterDepth = boxOuterDepth - railRearOffset;
 drawerInnerWidth = drawerOuterWidth - (1 * drawerWallWidth); // FIXME: Why is this 1*drawerWallWidth, it should be 2*, but that produces the wrong output
 drawerInnerDepth = drawerOuterDepth - (1 * drawerWallWidth); // FIXME: Why is this 1*drawerWallWidth, it should be 2*, but that produces the wrong output
