@@ -235,7 +235,7 @@ module drawer() {
             // Draw the outer box of the drawer
             translate([drawerSkirtWidth, 0, 0])
                 cube([drawerOuterWidth, drawerOuterDepth, drawerOuterHeight]);
-            // Drawer the handle
+            // Draw the handle
             intersection() {
                 translate([drawerMidWidth, -drawerHandleLength, 0]) {
                     cube([drawerHandleWidth, drawerHandleLength, uHeight - 2]);
@@ -247,6 +247,7 @@ module drawer() {
                     }
                 }
             }
+            // FIXME: Add optional label holder
         }
         
         // Subtract the compartments
