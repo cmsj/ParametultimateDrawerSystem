@@ -51,15 +51,14 @@ boxMountingCornerOffset = 12;
 boxMountingEdgeOffset = 14;
 
 /* [Box: Mounting Parameters] */
-// FIXME: Support bolts here too
 // Mounting holes for the top of the Box
-boxTopMounting = "N"; // [S:Screw, N:Nut, Z:Nothing]
+boxTopMounting = "N"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
 // Mounting holes for the left of the Box
-boxLeftMounting = "S"; // [S:Screw, N:Nut, Z:Nothing]
+boxLeftMounting = "S"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
 // Mounting holes for the right of the Box
-boxRightMounting = "N"; // [S:Screw, N:Nut, Z:Nothing]
+boxRightMounting = "N"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
 // Mounting holes for the bottom of the Box
-boxBottomMounting = "S"; // [S:Screw, N:Nut, Z:Nothing]
+boxBottomMounting = "S"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
 // Rear mounting tabs
 boxRearMounting = true;
 // Depth of rear mounting tabs and braces (mm)
@@ -269,6 +268,9 @@ module bottomMountingHole(x=0, y=0, z=0) {
     if (boxBottomMounting == "N") {
         orientedHexNutHole(holeHeight, x, y, z + holeHeight - fudge, 0, 180, 0);
     }
+    if (boxBottomMounting == "B") {
+        orientedBoltHole(holeHeight, x, y, z + holeHeight - fudge, 0, 180, 0);
+    }
 }
 module topMountingHole(x=0, y=0, z=0) {
     holeHeight = boxFrameThickness + (3 * fudge);
@@ -277,6 +279,9 @@ module topMountingHole(x=0, y=0, z=0) {
     }
     if (boxTopMounting == "N") {
         orientedHexNutHole(holeHeight, x, y, z - fudge, 0, 0, 0);
+    }
+    if (boxTopMounting == "B") {
+        orientedBoltHole(holeHeight, x, y, z - fudge, 0, 0, 0);
     }
 }
 module rightMountingHole(x=0, y=0, z=0) {
@@ -287,6 +292,9 @@ module rightMountingHole(x=0, y=0, z=0) {
     if (boxRightMounting == "N") {
             orientedHexNutHole(holeHeight, x - fudge, y, z + mountingHoleDiameter, 0, 90, 0);
     }
+    if (boxRightMounting == "B") {
+        orientedBoltHole(holeHeight, x - fudge, y, z + mountingHoleDiameter, 0, 90, 0);
+    }
 }
 module leftMountingHole(x=0, y=0, z=0) {
     holeHeight = boxFrameThickness + (3 * fudge);
@@ -295,6 +303,9 @@ module leftMountingHole(x=0, y=0, z=0) {
     }
     if (boxLeftMounting == "N") {
         orientedHexNutHole(holeHeight, x + fudge, y, z + mountingHoleDiameter, 0, -90, 0);
+    }
+    if (boxLeftMounting == "B") {
+        orientedBoltHole(holeHeight, x + fudge, y, z + mountingHoleDiameter, 0, -90, 0);
     }
 }
 module rearMountingTab(angleStart = 0, angleEnd = 90, tab_x = 0, tab_z = 0, hole_x = 8.5, hole_y = 8.5) {
@@ -322,6 +333,15 @@ module orientedHexNutHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
             cylinder(h = holeHeight, d = mountingHoleDiameter, $fn=30);
             translate([0, 0, 0])
                 hexagon(radius=mountingNutDiameter/2, height=mountingNutThickness);
+        }
+    }
+}
+module orientedBoltHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+    translate([x, y, z]) {
+        rotate([rx, ry, rz]) {
+            cylinder(h = holeHeight, d = mountingHoleDiameter, $fn=30);
+            translate([0, 0, 0])
+                cylinder(d = mountingBoltHeadDiameter, h = mountingBoltHeadHeight, $fn=30);
         }
     }
 }
