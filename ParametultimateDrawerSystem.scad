@@ -51,6 +51,7 @@ boxMountingCornerOffset = 12;
 boxMountingEdgeOffset = 14;
 
 /* [Box: Mounting Parameters] */
+// FIXME: Support bolts here too
 // Mounting holes for the top of the Box
 boxTopMounting = "N"; // [S:Screw, N:Nut, Z:Nothing]
 // Mounting holes for the left of the Box
@@ -145,20 +146,19 @@ module box() {
                     }
                 }
         }
-    
-        
+
         // Top/bottom structural non-rails
         // (These look like rails, but they are just to stiffen the top/bottom
-        structAreaWidth = boxInnerWidth - (2 * boxMountingCornerOffset);
-        numStructures = floor(structAreaWidth / uHeight);
+        structAreaWidth = boxOuterWidth - (4 * boxMountingCornerOffset);
+        numStructures = ceil(structAreaWidth / (uHeight + railThickness));
         structSeparation = structAreaWidth / numStructures;
         for (s = [0:numStructures - 1]) {
-            translate([2*boxMountingCornerOffset + (s * structSeparation), boxRearMountingDepth, boxFrameThickness - railThickness]) {
+            translate([2*boxMountingCornerOffset + (structSeparation / numStructures) + (s * structSeparation) + (s * railThickness), boxRearMountingDepth, boxFrameThickness - railSideInset]) {
                 // Bottom wall inset
-                cube([railThickness, boxOuterDepth - (2 * boxRearMountingDepth), railThickness + fudge]);
+                cube([railThickness, boxOuterDepth - (2 * boxRearMountingDepth), railSideInset + fudge]);
                 // Top wall inset
-                translate([0, 0, boxInnerHeight + railThickness - fudge])
-                    cube([railThickness, boxOuterDepth - (2 * boxRearMountingDepth), railThickness + fudge]);
+                translate([0, 0, boxInnerHeight + railSideInset - fudge])
+                    cube([railThickness, boxOuterDepth - (2 * boxRearMountingDepth), railSideInset + fudge]);
             }
         }
         
