@@ -5,20 +5,67 @@
 // Inspired by Marc Elbichon's "Ultimate Drawer System"
 // https://www.prusaprinters.org/prints/17862-ultimate-drawer-system
 
+// FIXME: Rear braces are incorrectly positioned
 
 /* [Part selection] */
 // The part to print
 PART = "B"; // [B:Box, D:Drawer]
 
-/* [Box: Common Parameters] */
-// Number of U in the Box
+/* [BOX: Basic Geometry] */
+// Height of a single drawer (mm) - this is called a "U"
+uHeight = 20;
+// Number of U (i.e. how many single U drawers)
 uNum = 8;
-// Outer width of the Box (mm)
+// External width of the Box (mm)
 boxOuterWidth = 130;
-// Outer depth of the Box (mm)
+// External depth of the Box (mm)
 boxOuterDepth = 130;
-// Mounting bolt shaft diameter (mm)
+
+/* [DRAWER: Common Geometry] */
+// How many U high this drawer should be
+drawerUHeight = 1;
+// Number of rows of compartments in the drawer
+drawerRows = 4;
+// Number of columns of compartments in the drawer
+drawerColumns = 3;
+// Width if interior/exterior drawer walls (mm)
+drawerWallWidth = 1;
+// Width of drawer handle (mm)
+drawerHandleWidth = 2;
+// Length of drawer handle (mm)
+drawerHandleLength = 15;
+
+/* [Box: Basic Mounting Hole Parameters] */
+// Mounting holes for the top of the Box
+boxTopMounting = "N"; // [B:Bolt, S:Countersunk Screw, N:Nut, Z:No Holes]
+// Mounting holes for the left of the Box
+boxLeftMounting = "S"; // [B:Bolt, S:Countersunk Screw, N:Nut, Z:No Holes]
+// Mounting holes for the right of the Box
+boxRightMounting = "N"; // [B:Bolt, S:Countersunk Screw, N:Nut, Z:No Holes]
+// Mounting holes for the bottom of the Box
+boxBottomMounting = "S"; // [B:Bolt, S:Countersunk Screw, N:Nut, Z:No Holes]
+// Rear mounting tabs
+boxRearMounting = true;
+// Depth of rear mounting tabs and braces (mm)
+boxRearMountingDepth = 2.3;
+
+/* [Box: Advanced Geometry] */
+// Thickness of the Box's frame (mm)
+boxFrameThickness = 5;
+// Number of rear braces
+boxBraceCount = 2;
+// Drawer rail thickness (mm)
+railThickness = 1.7;
+// Drawer rail inset depth into Box side walls (mm)
+railSideInset = 3.6;
+// Rail offset from Box rear (mm) (this controls the depth of the drawer)
+railRearOffset = 8;
+
+/* [Box: Advanced Mounting Hole Parameters] */
+// Mounting bolt/screw shaft diameter (mm)
 mountingBoltShaftDiameter = 4;
+// Mounting bolt/screw diameter tolerance (mm)
+mountingBoltShaftDiameterTolerance = 0.2;
 // Mounting bolt head diameter (mm)
 mountingBoltHeadDiameter = 8;
 // Mounting bolt head height (mm)
@@ -29,54 +76,10 @@ mountingNutDiameter = 7.5;
 mountingNutThickness = 3;
 // Mounting screw countersink depth (mm)
 mountingScrewCountersinkDepth = 3;
-
-/* [Box: Advanced Parameters] */
-// Height of a single drawer (mm)
-uHeight = 20;
-// Thickness of the Box's frame (mm)
-boxFrameThickness = 5;
-// Number of rear braces
-boxBraceCount = 2;
-// Rail thickness (mm)
-railThickness = 1.7;
-// Rail inset into Box side walls (mm)
-railSideInset = 3.6;
-// Rail offset from Box rear (mm)
-railRearOffset = 8;
-// Mounting screw diameter tolerance (mm)
-mountingBoltShaftDiameterTolerance = 0.2;
-// Mounting hole corner offset (mm)
+// Distance of mounting holes from box sides (mm)
 boxMountingCornerOffset = 12;
-// Mounting hole edge offset (mm)
+// Distance of mounting holes from box front/back (mm)
 boxMountingEdgeOffset = 14;
-
-/* [Box: Mounting Parameters] */
-// Mounting holes for the top of the Box
-boxTopMounting = "N"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
-// Mounting holes for the left of the Box
-boxLeftMounting = "S"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
-// Mounting holes for the right of the Box
-boxRightMounting = "N"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
-// Mounting holes for the bottom of the Box
-boxBottomMounting = "S"; // [B:Bolt, S:Screw, N:Nut, Z:Nothing]
-// Rear mounting tabs
-boxRearMounting = true;
-// Depth of rear mounting tabs and braces (mm)
-boxRearMountingDepth = 2.3;
-
-/* [Drawer: Common Parameters] */
-// Height of the drawer (U)
-drawerUHeight = 1;
-// Rows of compartments
-drawerRows = 4;
-// Columns of compartments
-drawerColumns = 3;
-// Width if interior/exterior drawer walls (mm)
-drawerWallWidth = 1;
-// Width of drawer handle (mm)
-drawerHandleWidth = 2;
-// Length of drawer handle (mm)
-drawerHandleLength = 15;
 
 /* [Hidden] */
 fudge = 0.1; // This is necessary to avoid Z-fighting when performing boolean operations on objects that share exactly aligned faces.
@@ -132,7 +135,7 @@ module box() {
         }
         // Scoop rail entries
         for (u = [0:uNum - 1]) {
-            translate([(boxFrameThickness - railSideInset), -fudge, (boxFrameThickness + (uHeight * u))])
+            translate([(boxFrameThickness - railSideInset), -fudge, (boxFrameThickness + (uHeight * u)) + railThickness/2])
                 rotate([0, 90, 0]) {
                     linear_extrude(boxInnerWidth + (2 * railSideInset + fudge)) {
                         // Special case the lowest rail scoop so it doesn't clip the bottom of the box
@@ -259,6 +262,7 @@ module drawer() {
     }
 }
 
+
 // Part generators
 module bottomMountingHole(x=0, y=0, z=0) {
     holeHeight = boxFrameThickness + (3 * fudge);
@@ -330,7 +334,7 @@ module hexagon(radius=10, height=20) {
 module orientedHexNutHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
     translate([x, y, z]) {
         rotate([rx, ry, rz]) {
-            cylinder(h = holeHeight, d = mountingHoleDiameter, $fn=30);
+            cylinder(h = holeHeight, d = mountingHoleDiameter + mountingBoltShaftDiameterTolerance, $fn=30);
             translate([0, 0, 0])
                 hexagon(radius=mountingNutDiameter/2, height=mountingNutThickness);
         }
@@ -339,7 +343,7 @@ module orientedHexNutHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
 module orientedBoltHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
     translate([x, y, z]) {
         rotate([rx, ry, rz]) {
-            cylinder(h = holeHeight, d = mountingHoleDiameter, $fn=30);
+            cylinder(h = holeHeight, d = mountingHoleDiameter + mountingBoltShaftDiameterTolerance, $fn=30);
             translate([0, 0, 0])
                 cylinder(d = mountingBoltHeadDiameter, h = mountingBoltHeadHeight, $fn=30);
         }
@@ -354,7 +358,7 @@ module orientedCountersunkHole(holeHeight=0, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
 module countersunkScrewHole(height) {
     union() {
         cylinder(h=mountingScrewCountersinkDepth + fudge, r1=mountingBoltHeadDiameter/2, r2=mountingHoleDiameter/2, $fn=30);
-        cylinder(h = height, r = mountingHoleDiameter/2, $fn=30);
+        cylinder(h = height, d = mountingHoleDiameter + mountingBoltShaftDiameterTolerance, $fn=30);
     }
 }
 module pie_slice(r, start_angle, end_angle) {
